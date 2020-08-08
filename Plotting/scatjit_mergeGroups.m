@@ -1,4 +1,4 @@
-function [s1] = scatJit(vec, jitFactor, col, circleSize,color)
+function [s1] = scatjit(vec, jitFactor, col, circleSize,color,nbins)
 
 % Takes a vector and plots it as a jittered scatter around value col
 % Adam Claridge-Chang 20120411. Improved to modify jitter based on the
@@ -16,6 +16,9 @@ function [s1] = scatJit(vec, jitFactor, col, circleSize,color)
 % jitFactor=0.2
 % % _________________________________
 
+if ~exist('nbins','var')
+    nbins = 10;% NOTE: I am using the default 10 bins!
+end
 
 % make jitter factors
 sv=size(vec);
@@ -25,7 +28,7 @@ jits = A(randi([1,2],sv(1),sv(2)));
 jits=jits'.*jitFactor;
 
 % multiply jit factors by a histogram-based bias
-[n,xout] = hist(vec, 10); %NOTE: I am using the default 10 bins!
+[n,xout] = hist(vec, nbins);
 nnorm= n/max(n);
 
 %find bin half width

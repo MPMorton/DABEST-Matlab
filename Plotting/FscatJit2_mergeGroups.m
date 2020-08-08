@@ -21,6 +21,7 @@ function  [ss] =FscatJit2_mergeGroups(identifiers, data, varargin)
 % Sameer Aryal Jan 22, 2013. Can now compute mean difference and plot it
 % next to the bar scatjits, along with a floating axis.
 
+
 %% For testing_______
 % Mamma mia
 % % % % clear all
@@ -55,41 +56,16 @@ function  [ss] =FscatJit2_mergeGroups(identifiers, data, varargin)
 
 
 %% Deal with the varargin options
-% fprintf('Total number of inputs = %d\n',nargin);
-nVarargs = length(varargin);
-% fprintf('Inputs in varargin(%d):\n',nVarargs);
-% If no circleSize is given, define a default
-if nVarargs == 0
-    lims = [];
-    isPaired = 'N';
-    circleSize=170;
-    barstate='off';
-elseif nVarargs == 1 && isfloat(varargin{1});
-    lims = varargin{1};
-    isPaired = 'N';
-    circleSize= 170;
-    barstate='off';
-elseif nVarargs == 1 && ~isfloat(varargin{1});
-    lims = [];
-    isPaired = varargin{1};
-    circleSize=170;
-    barstate='off';
-elseif nVarargs == 2
-    lims = varargin{1};
-    isPaired = varargin{2};
-    circleSize=170;
-    barstate='off';
-elseif nVarargs == 3
-    lims = varargin{1};
-    isPaired = varargin{2};
-    circleSize=varargin{3};
-    barstate='off';
-elseif nVarargs == 4
-    lims = varargin{1};
-    isPaired = varargin{2};
-    circleSize=varargin{3};
-    barstate=varargin{4};
+if isempty(varargin)
+    pars = validateFscatJitInputs;
+else
+    pars = validateFscatJitInputs(varargin);
 end
+lims = pars.Results.lims;
+isPaired = pars.Results.isPaired;
+circleSize = pars.Results.circleSize;
+barstate = pars.Results.barstate;
+nbins = pars.Results.nbins;
 
 switch barstate
     case 'on'
@@ -158,11 +134,11 @@ if strcmp(barstate, 'off') && strcmp(isPaired, 'N')
         hold on
         
         if idx == 1 
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:));
+        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);
         elseif idx ==2 
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:));  
+        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);  
         else
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, idx-1 ,circleSize,colors(idx,:));  
+        [s1] = scatjit_mergeGroups(curDat, jitFactor, idx-1 ,circleSize,colors(idx,:),nbins);  
         end
             end
         else
@@ -624,10 +600,10 @@ elseif length(celld)>2
                     
                 if mod(idx,3)==0
                    location = location+1; 
-                   [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:));
+                   [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:),nbins);
                    location = location+1;
                 else
-                    [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:));
+                    [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:),nbins);
                 end
             end
        
