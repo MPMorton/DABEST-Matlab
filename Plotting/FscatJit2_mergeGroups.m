@@ -59,7 +59,7 @@ function  [ss] =FscatJit2_mergeGroups(identifiers, data, varargin)
 if isempty(varargin)
     pars = validateFscatJitInputs;
 else
-    pars = validateFscatJitInputs(varargin);
+    pars = validateFscatJitInputs(varargin{:});
 end
 lims = pars.Results.lims;
 isPaired = pars.Results.isPaired;
