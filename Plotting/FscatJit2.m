@@ -66,7 +66,8 @@ isPaired = pars.Results.isPaired;
 circleSize = pars.Results.circleSize;
 barstate = pars.Results.barstate;
 nbins = pars.Results.nbins;
-
+plotType = lower(pars.Results.plotType);
+colors = pars.Results.colors;
 
 switch barstate
     case 'on'
@@ -76,7 +77,17 @@ switch barstate
     otherwise
 end
 
-
+switch plotType
+    case 'scatjit'
+        scatplot = 1;
+        violinplot = 0;
+    case 'violin'
+        scatplot = 0;
+        violinplot = 1;
+    case 'both'
+        scatplot = 1;
+        violinplot = 1;
+end
 
 %% Repack into nan-padded columns if they are in vector form
 if size(identifiers)==size(data)
@@ -87,7 +98,9 @@ else
 end
 % Define nex
 nex=length(celld);
-
+if size(colors,1)<nex
+    colors = [colors;lines(100)];
+end
 
 if length(uidents) > 2
     p = panel();
@@ -121,16 +134,20 @@ if strcmp(barstate, 'on')
 end
 
 %% Plot scatjits
-jitFactor=0.2;
+jitFactor=0.3;
 circleSize=circleSize./max(X);% So circleSize scales with n-data columns
 
 if strcmp(barstate, 'off') && strcmp(isPaired, 'N')
-    colors = lines(100);
+
     for idx=1:nex
         curDat=celld{idx};
         hold on
-        [s1] = scatJit(curDat, jitFactor, X(idx) ,circleSize,colors(idx,:),nbins);
-              
+        if scatplot
+            [s1] = scatJit(curDat, jitFactor, X(idx) ,circleSize,colors(idx,:),nbins);
+        end
+    end
+    if violinplot
+        violin_dabest(celld,colors(X,:));
     end
 end
 
@@ -179,7 +196,6 @@ end
 %% Insert mean difference and CIs on a different axis if there is a pair
 if length(celld)==2;
     if strcmpi(isPaired, 'Y')
-        colors = lines(100);
         hold off
         if length(celld{1}) == length (celld{2})
             curDat = [celld{1} celld{2}];
@@ -298,7 +314,6 @@ if length(celld)==2;
     end
     
     if strcmp(isPaired, 'Y')
-        colors = lines(100);
         [x,~] = dsxy2figxy(refAxes, .5, av(1));
         [x2, ~] = dsxy2figxy(refAxes, 2.5, av(2));
         line1= annotation('line', [x ax1Pos(1) + ax1Pos(3)-((x-ax1Pos(1)))], [y y]);
@@ -452,7 +467,12 @@ else
             for idx = 1:nex
                 curDat=celld{idx};
                 hold on
+                if scatplot
                 scatJit(curDat, jitFactor, newX(idx), circleSize,colors(idx,:),nbins);
+                end
+            end
+            if violinplot
+                violin_dabest(celld,colors(newX,:))
             end
         end
         tripleErrorBars(av, er, newX,barwidth, linewidth, middle_bar);

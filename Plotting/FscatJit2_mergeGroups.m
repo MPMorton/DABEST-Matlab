@@ -66,6 +66,8 @@ isPaired = pars.Results.isPaired;
 circleSize = pars.Results.circleSize;
 barstate = pars.Results.barstate;
 nbins = pars.Results.nbins;
+plotType = pars.Results.plotType;
+colors = pars.Results.colors;
 
 switch barstate
     case 'on'
@@ -75,6 +77,17 @@ switch barstate
     otherwise
 end
 
+switch plotType
+    case 'scatJit'
+        scatplot = 1;
+        violinplot = 0;
+    case 'violin'
+        scatplot = 0;
+        violinplot = 1;
+    case 'both'
+        scatplot = 1;
+        violinplot = 1;
+end
 
 
 %% Repack into nan-padded columns if they are in vector form
@@ -121,31 +134,36 @@ if strcmp(barstate, 'on')
 end
 
 %% Plot scatjits
-jitFactor=0.2;
+jitFactor=0.3;
 circleSize=circleSize./max(X);% So circleSize scales with n-data columns
 
 if strcmp(barstate, 'off') && strcmp(isPaired, 'N')
     
-        if nex > 2
-            colors = lines(100);
-            %colors = {'blue','green','red'};
-            for idx=1:nex
-        curDat=celld{idx};
-        hold on
-        
-        if idx == 1 
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);
-        elseif idx ==2 
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);  
-        else
-        [s1] = scatjit_mergeGroups(curDat, jitFactor, idx-1 ,circleSize,colors(idx,:),nbins);  
-        end
+    if nex > 2
+        colors = lines(100);
+        %colors = {'blue','green','red'};
+        for idx=1:nex
+            curDat=celld{idx};
+            hold on
+            if scatplot
+                if idx == 1
+                    [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);
+                elseif idx ==2
+                    [s1] = scatjit_mergeGroups(curDat, jitFactor, 1 ,circleSize,colors(idx,:),nbins);
+                else
+                    [s1] = scatjit_mergeGroups(curDat, jitFactor, idx-1 ,circleSize,colors(idx,:),nbins);
+                end
             end
-        else
-        disp('Use the old version of this code(Tayfun)')
-       
+            
         end
+        if violinplot
+            violin_dabest(celld,colors(X,:));
+        end
+    else
+        disp('Use the old version of this code(Tayfun)')
+        
     end
+end
 
 
 
@@ -600,15 +618,22 @@ elseif length(celld)>2
                     
                 if mod(idx,3)==0
                    location = location+1; 
+                   if scatplot
                    [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:),nbins);
+                   end
                    location = location+1;
                 else
+                    if scatplot
                     [s2] = scatjit_mergeGroups(curDat, jitFactor, location,circleSize,colors(idx,:),nbins);
+                    end
                 end
+                
             end
-       
-        tripleErrorBars(av, er, X, barwidth, linewidth, middle_bar);
-        
+            if violinplot
+                violin_dabest(celld_backup,colors(X,:));
+            end
+            tripleErrorBars(av, er, X, barwidth, linewidth, middle_bar);
+            
         %%%%Re_arrange labels to put them under the plot%%%%%%%%%%%%%%
         
 
